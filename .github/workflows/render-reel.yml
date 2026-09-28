@@ -1,0 +1,57 @@
+name: Render Reel
+
+on:
+  workflow_dispatch:
+    inputs:
+      image1_url:
+        description: "Scene 1 image URL"
+        required: true
+        type: string
+      image2_url:
+        description: "Scene 2 image URL"
+        required: true
+        type: string
+      image3_url:
+        description: "Scene 3 image URL"
+        required: true
+        type: string
+      image4_url:
+        description: "Scene 4 image URL"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Ensure FFmpeg is available
+        run: |
+          if ! command -v ffmpeg >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install -y ffmpeg
+          fi
+          ffmpeg -version | head -n 1
+
+      - name: Render vertical Reel
+        env:
+          IMAGE1_URL: ${{ inputs.image1_url }}
+          IMAGE2_URL: ${{ inputs.image2_url }}
+          IMAGE3_URL: ${{ inputs.image3_url }}
+          IMAGE4_URL: ${{ inputs.image4_url }}
+        run: bash render.sh
+
+      - name: Upload MP4
+        uses: actions/upload-artifact@v4
+        with:
+          name: rendered-reel
+          path: output/reel.mp4
+          if-no-files-found: error
+          retention-days: 1
