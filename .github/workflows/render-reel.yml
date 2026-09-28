@@ -6,18 +6,22 @@ on:
       image1_url:
         description: "Scene 1 image URL"
         required: true
+        default: "https://picsum.photos/seed/reel1/1080/1920"
         type: string
       image2_url:
         description: "Scene 2 image URL"
         required: true
+        default: "https://picsum.photos/seed/reel2/1080/1920"
         type: string
       image3_url:
         description: "Scene 3 image URL"
         required: true
+        default: "https://picsum.photos/seed/reel3/1080/1920"
         type: string
       image4_url:
         description: "Scene 4 image URL"
         required: true
+        default: "https://picsum.photos/seed/reel4/1080/1920"
         type: string
 
 permissions:
