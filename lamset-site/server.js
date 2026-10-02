@@ -79,7 +79,7 @@ if(!one('SELECT 1 FROM blog LIMIT 1')){
 }
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const slug=s=>String(s||'').toLowerCase().trim().replace(/[^a-z0-9\u0600-\u06ff]+/g,'-').replace(/^-+|-+$/g,'').slice(0,120);
-const LOGO_B64_PATH=path.join(__dirname,'logo.b64');
+const LOGO_B64_PATH=__dirname+'/logo.b64';
 const LOGO_BUF=fs.existsSync(LOGO_B64_PATH)?Buffer.from(fs.readFileSync(LOGO_B64_PATH,'utf8').trim(),'base64'):null;
 const wa=()=>`https://wa.me/${setting('whatsapp','966501308295')}?text=${encodeURIComponent('السلام عليكم، شاهدت موقع لمسة المستقبل وأرغب في معرفة التفاصيل والحصول على عرض سعر.')}`;
 const css=`
