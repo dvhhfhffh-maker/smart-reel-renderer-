@@ -75,6 +75,11 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold);bo
 .foot{gap:42px}
 .btn{min-height:46px;box-shadow:0 8px 22px rgba(199,151,70,.16);transition:transform .2s ease,box-shadow .2s ease}
 .btn:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(199,151,70,.24)}
+.review-box{max-width:860px;margin:0 auto;background:#fffdf9;border:1px solid var(--line);border-radius:26px;padding:30px;box-shadow:0 18px 50px rgba(22,20,18,.08)}
+.review-box .review-stars{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.review-box label{display:grid;gap:7px;font-weight:750;color:var(--ink)}
+.review-box small{display:block;margin-top:12px;color:#756c62}
+.review-box .review-success{padding:13px 15px;border-radius:12px;background:#eef8ee;color:#245d2b;margin-bottom:18px}
 @media(max-width:900px){
  .section{padding:72px 0}
  .grid,.why,.testimonials{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -82,6 +87,8 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold);bo
  .head{margin-bottom:32px}
 }
 @media(max-width:620px){
+ .review-box{padding:20px;border-radius:20px}
+ .review-box .review-stars{grid-template-columns:1fr}
  .container{width:min(94%,1180px)}
  .section{padding:56px 0}
  .grid,.why,.testimonials,#portfolio .portfolio,.statgrid{grid-template-columns:1fr!important}
@@ -99,6 +106,58 @@ const styleNeedle = '<style>' + '$' + '{CSS}</style>';
 const styleReplacement = '<style>' + '$' + '{CSS}</style><style>' + luxuryLayoutCSS + '</style>';
 if (!source.includes(styleNeedle)) throw new Error('Layout style injection target not found');
 source = source.replace(styleNeedle, styleReplacement);
+
+
+// Real customer reviews: demo rows are hidden, new submissions require admin approval.
+const sessionNeedle = "const sessions=new Map()";
+if (!source.includes(sessionNeedle)) throw new Error('Review migration target not found');
+source = source.replace(
+  sessionNeedle,
+  "run(\"UPDATE testimonials SET active=0 WHERE id<=3 AND name IN (?,?,?)\",'أبو محمد','أحمد','خالد');" + sessionNeedle
+);
+
+const reviewRouteNeedle = "if(req.method==='GET'&&p==='/contact')";
+if (!source.includes(reviewRouteNeedle)) throw new Error('Review route target not found');
+const reviewRoute = "if(req.method==='POST'&&p==='/review'){if(!rate(req))return send(res,429,'طلبات كثيرة، حاول لاحقاً.');let b=await form(req);if(String(b.website||'').trim())return redirect(res,'/?review=sent#write-review');let name=String(b.name||'').trim().slice(0,80),area=String(b.area||'').trim().slice(0,100),txt=String(b.text||'').trim().slice(0,1200),rating=Math.max(1,Math.min(5,Number(b.rating)||5));if(name.length<2||txt.length<4)return send(res,400,simplePage('بيانات غير مكتملة','<div class=head><h1>أكمل الاسم والتعليق من فضلك.</h1><a class=btn href=\"/#write-review\">العودة</a></div>'));run('INSERT INTO testimonials(name,area,rating,text,active) VALUES(?,?,?,?,0)',name,area,rating,txt);return redirect(res,'/?review=sent#write-review')}";
+source = source.replace(reviewRouteNeedle, reviewRoute + reviewRouteNeedle);
+
+const pageScriptNeedle = '<script>' + '
+if (!source.includes(needle)) throw new Error('Admin setup route patch target not found');
+source = source.replace(
+  needle,
+  needle + "let setupToken=process.env.SETUP_TOKEN||'';if(setupToken&&u.searchParams.get('token')!==setupToken)return send(res,404,'Not Found');"
+);
+
+const target = path.join('/tmp', 'lamset-server.js');
+fs.writeFileSync(target, source);
+require(target);
+ + '{clientJS}</script></body></html>';
+if (!source.includes(pageScriptNeedle)) throw new Error('Review UI target not found');
+const reviewUi = `<script>
+(function(){
+  if(location.pathname!=='/') return;
+  var heads=[].slice.call(document.querySelectorAll('h2'));
+  var h=heads.find(function(x){return (x.textContent||'').indexOf('آراء العملاء')>-1});
+  var anchor=h&&h.closest('.section');
+  if(!anchor) return;
+  var sec=document.createElement('section');
+  sec.id='write-review';
+  sec.className='section';
+  sec.innerHTML='<div class="container"><div class="head"><span class="tag">رأيك يهمنا</span><h2>شارك تجربتك مع لمسة المستقبل</h2><p class="muted">اكتب تقييمك الحقيقي، وسيتم مراجعته قبل ظهوره في الموقع.</p></div><div class="review-box">'+(new URLSearchParams(location.search).get('review')==='sent'?'<div class="review-success">✓ تم استلام تقييمك. سيظهر بعد اعتماده من الإدارة.</div>':'')+'<form method="post" action="/review"><div class="formgrid"><label>الاسم<input name="name" required maxlength="80" placeholder="اسمك"></label><label>الحي أو المنطقة<input name="area" maxlength="100" placeholder="مثال: النرجس"></label><label>التقييم<select name="rating"><option value="5">★★★★★ ممتاز</option><option value="4">★★★★ جيد جداً</option><option value="3">★★★ جيد</option><option value="2">★★ مقبول</option><option value="1">★ ضعيف</option></select></label><label class="full">تعليقك<textarea name="text" required minlength="4" maxlength="1200" placeholder="اكتب تجربتك مع الخدمة..."></textarea></label><input name="website" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;opacity:0" aria-hidden="true"><button class="btn full" type="submit">إرسال التقييم</button></div><small>لن يظهر تقييمك للعامة إلا بعد مراجعته واعتماده.</small></form></div></div>';
+  anchor.insertAdjacentElement('afterend',sec);
+})();
+</script>`;
+source = source.replace(pageScriptNeedle, '<script>' + '
+if (!source.includes(needle)) throw new Error('Admin setup route patch target not found');
+source = source.replace(
+  needle,
+  needle + "let setupToken=process.env.SETUP_TOKEN||'';if(setupToken&&u.searchParams.get('token')!==setupToken)return send(res,404,'Not Found');"
+);
+
+const target = path.join('/tmp', 'lamset-server.js');
+fs.writeFileSync(target, source);
+require(target);
+ + '{clientJS}</script>' + reviewUi + '</body></html>');
 
 const needle = "if(p==='/admin/setup'){";
 if (!source.includes(needle)) throw new Error('Admin setup route patch target not found');
