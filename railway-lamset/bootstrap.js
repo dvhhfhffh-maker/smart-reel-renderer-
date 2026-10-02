@@ -1,0 +1,10 @@
+const fs = require('fs');
+const zlib = require('zlib');
+const path = require('path');
+const p0 = fs.readFileSync(path.join(__dirname, 'app.b64.0'), 'utf8').trim();
+const p1 = fs.readFileSync(path.join(__dirname, 'app.b64.1'), 'utf8').trim();
+const packed = Buffer.from(p0 + p1, 'base64');
+const source = zlib.gunzipSync(packed);
+const target = path.join('/tmp', 'lamset-server.js');
+fs.writeFileSync(target, source);
+require(target);
