@@ -1,0 +1,34 @@
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><meta name="theme-color" content="#070809"><meta name="description" content="الممر الأخير — لعبة رعب تعاونية عربية لشخصين عبر الإنترنت. اهربا قبل انتهاء الوقت!"><link rel="manifest" href="/manifest.webmanifest"><link rel="icon" href="/icons/icon-192.png"><link rel="stylesheet" href="/style.css"><title>الممر الأخير | رعب تعاوني أونلاين</title></head>
+<body>
+<div id="app">
+  <section id="menu" class="menu-screen"><div class="static-noise"></div><div class="ambient"></div><div class="menu-inner">
+    <div class="eyebrow"><span class="dot"></span> تجربة رعب تعاونية عبر الإنترنت <span class="dot"></span></div>
+    <div class="logo-mark"><div class="logo-eye"></div></div>
+    <p class="chapter">الفصل الأول: المصحّة المهجورة</p>
+    <h1 class="main-title">الممر <em>الأخير</em></h1><p class="latin">THE LAST CORRIDOR</p>
+    <p class="lead">شخصان. عشرون دقيقة. مخلوق واحد لا يرحم.<br>افصل بينكما الجدران... لكن لا تسمحا للظلام أن يفصل بينكما.</p>
+    <div class="setup-card">
+      <label for="playerName">اسم الناجي</label><input id="playerName" autocomplete="nickname" maxlength="18" placeholder="اكتب اسمك هنا" value="ناجٍ" />
+      <div class="mode-buttons"><button id="createBtn" class="btn primary"><span>✦</span> إنشاء غرفة جديدة</button><button id="joinBtn" class="btn outline">انضمام إلى صديق</button></div>
+      <div id="joinFields" class="join-fields hidden"><input id="roomInput" placeholder="رمز الغرفة المكوّن من 6 أحرف" maxlength="6" dir="ltr" autocapitalize="characters"/><button id="joinConfirm" class="btn primary">دخول الغرفة ←</button></div>
+      <div id="connectionLabel" class="connection-label" aria-live="polite"></div>
+    </div>
+    <div class="features"><span>◉ لاعبـان فقط</span><span>♜ ألغاز جماعية</span><span>✚ إنعاش الصديق</span><span>⌛ وقت محدود</span></div>
+    <details class="rules"><summary>تعليمات النجاة <span>＋</span></summary><div>حلّا ألغاز الأختام الثلاثة، ثم شغّلا مولّدَي الطاقة خلال 30 ثانية من بعضهما. يعود كلاكما إلى بوابة الخروج قبل نهاية العشرين دقيقة. إذا أسقط الوحش أحدكما، اقترب منه واضغط «إنعاش». <strong>على الجوال:</strong> عصا الحركة يسارًا، السحب يمينًا للنظر. <strong>على الكمبيوتر:</strong> WASD للتحرك، الماوس للنظر، E للتفاعل، Shift للجري، T للدردشة.</div></details>
+  </div><footer>ضع سماعات الرأس 🎧 للحصول على تجربة أقوى <span>•</span> نسخة تجريبية قابلة للعب</footer></section>
+  <section id="lobby" class="lobby-screen hidden"><div class="lobby-box"><div class="loading-ring"></div><p class="chapter">داخل المنطقة المحظورة</p><h2>الغرفة جاهزة</h2><p class="subtle">شارك الرمز التالي مع صديقك. ستبدأ المطاردة بمجرد دخوله.</p><div class="room-code" id="roomCode">------</div><button id="copyCode" class="btn primary">⧉ نسخ رمز الدعوة</button> <button id="shareRoom" class="btn outline">↗ مشاركة رابط الغرفة</button><p class="waiting"><span class="pulse-dot"></span> في انتظار الناجي الثاني...</p><button id="leaveLobby" class="text-btn">العودة إلى القائمة</button></div></section>
+  <section id="game" class="game-screen hidden"><canvas id="scene"></canvas><div class="scanline"></div><div class="danger-wash" id="dangerWash"></div>
+    <header class="hud-top"><div class="hud-title"><div class="hud-mark">◈</div><div><strong>الممر الأخير</strong><small id="roomTag">غرفة: ------</small></div></div><div id="timer" class="timer">20:00</div><button id="soundBtn" class="icon-btn" aria-label="الصوت">♫</button></header>
+    <aside class="objective-panel"><div class="objective-head">▦ المهمة الحالية</div><div id="objectiveText">انتظر الناجي الثاني...</div><div class="objective-stats"><span id="sigilCount">الأختام ٠/٣</span><span id="powerCount">المولدات ٠/٢</span></div><div class="soul-meter"><div id="timeFill"></div></div></aside>
+    <div class="compass" id="compass">N · NE · E</div><div class="crosshair">+</div><div id="hint" class="hint hidden">اقترب للتفاعل</div>
+    <div class="players-panel" id="playersPanel"></div><div id="toast" class="toast hidden"></div>
+    <div id="puzzleOverlay" class="puzzle-overlay hidden"><div class="puzzle-card"><div class="chapter">✦ نقش على جدار المصحّة</div><h2 id="puzzleTitle">لغز الختم</h2><p id="puzzleQuestion">اختر الإجابة الصحيحة.</p><div id="puzzleChoices" class="puzzle-choices"></div><button id="puzzleClose" class="text-btn">إغلاق اللغز</button></div></div>
+    <div id="downOverlay" class="down-overlay hidden"><div class="down-icon">✚</div><h2>لقد سقطت!</h2><p>لا تستطيع الحركة. اطلب من شريكك إنعاشك قبل فوات الأوان.</p></div>
+    <button id="chatToggle" class="chat-toggle">☏ <span id="unread" class="hidden">0</span></button>
+    <section id="chatPanel" class="chat-panel hidden"><div class="chat-heading"><strong>الاتصال بين الناجيَين</strong><button id="chatClose" class="small-close">✕</button></div><div id="chatLog" class="chat-log"><div class="system-msg">حافظا على الاتصال... لا تنفصلا.</div></div><form id="chatForm"><input id="chatInput" autocomplete="off" maxlength="130" placeholder="اكتب رسالة إلى صديقك..."><button title="إرسال">➤</button></form></section>
+    <div id="minimap" class="minimap hidden"><canvas id="mapCanvas" width="240" height="240"></canvas><span>الخريطة المكتشفة</span></div>
+    <div class="controls"><div class="joystick" id="joystick"><div id="joystickKnob" class="joystick-knob"></div><span>تحرّك</span></div><div id="lookPad" class="look-pad"></div><div class="control-actions"><button id="mapBtn" class="round-btn" title="الخريطة">⌖</button><button id="flashBtn" class="round-btn active" title="المصباح">☼</button><button id="sprintBtn" class="round-btn sprint" title="الجري">⇧</button><button id="actBtn" class="action-btn">✦<small>تفاعل</small></button></div></div>
+    <div id="reviveBar" class="revive-bar hidden"><span>جاري إنعاش الصديق</span><div><i id="reviveFill"></i></div></div>
+  </section>
+  <section id="endScreen" class="end-screen hidden"><div class="end-box"><div id="endSymbol" class="end-symbol">✧</div><p class="chapter">نهاية الفصل الأول</p><h2 id="endTitle">لقد نجوتما!</h2><p id="endDesc"></p><button id="againBtn" class="btn primary">العب من جديد</button></div></section>
+</div><script src="/shared.js"></script><script src="/game.js" defer></script></body></html>

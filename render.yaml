@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: the-last-corridor-ar
+    runtime: node
+    plan: free
+    branch: last-corridor-apk-build
+    rootDir: last-corridor-web
+    buildCommand: npm install --omit=dev
+    startCommand: npm start
+    healthCheckPath: /health
+    autoDeployTrigger: commit
